@@ -1,42 +1,41 @@
 import { Component, Directive, inject, input } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { Effect, provideComponent } from '@ng-atomic/core';
+import { Effect, TokenizedType, provideComponent, InjectableComponent } from '@ng-atomic/core';
+import { NgAtomicComponent } from '@ng-atomic/core';
 import 'zone.js';
-import {
-  InjectableComponent,
-  // NgAtomicComponent,
-  // TokenizedType,
-} from '@ng-atomic/core';
-import { ExampleComponentStore, ExampleComponent } from './example.component';
-import { NgAtomicComponent } from './ng-atomic.component';
 
-// @TokenizedType()
-// @Directive({ standalone: true, selector: 'example' })
-// export class ExampleComponentStore extends InjectableComponent {
-//   readonly name = input<string>('');
-// }
+export enum ActionId {
+  CREATE = 'Create',
+}
 
-// @Component({
-//   standalone: true,
-//   selector: `example`,
-//   template: `
-//   <div>{{ store.name() }}</div>
-//   <button (click)="onClick()">ADD</button>
-//   `,
-//   hostDirectives: [
-//     {
-//       directive: ExampleComponentStore,
-//       inputs: ['name'],
-//     },
-//   ],
-// })
-// export class ExampleComponent extends NgAtomicComponent {
-//   protected readonly store = inject(ExampleComponentStore);
+@TokenizedType()
+@Directive({ standalone: true, selector: 'example' })
+export class ExampleComponentStore extends InjectableComponent {
+  static readonly ActionId = ActionId;
+  readonly name = input<string>('');
+}
 
-//   protected onClick() {
-//     this.dispatch({ id: ActionId.CREATE, payload: 'ADD' });
-//   }
-// }
+@Component({
+  standalone: true,
+  selector: `example`,
+  template: `
+  <div>{{ store.name() }}</div>
+  <button (click)="onClick()">ADD</button>
+  `,
+  hostDirectives: [
+    {
+      directive: ExampleComponentStore,
+      inputs: ['name'],
+    },
+  ],
+})
+export class ExampleComponent extends NgAtomicComponent {
+  protected readonly store = inject(ExampleComponentStore);
+
+  protected onClick() {
+    this.dispatch({ id: ActionId.CREATE, payload: 'ADD' });
+  }
+}
 
 @Component({
   selector: 'app-root',
@@ -50,7 +49,6 @@ import { NgAtomicComponent } from './ng-atomic.component';
 export class App extends NgAtomicComponent {
   @Effect(ExampleComponentStore.ActionId.CREATE)
   protected create() {
-    console.debug('success!!');
     alert('created!!');
   }
 }
